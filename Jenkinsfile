@@ -25,5 +25,12 @@ pipeline {
                 sh 'docker build -t jenkins-demo-app .'
             }
         }
+
+        stage('Run Docker Container') {
+            steps {
+                sh 'docker run --rm jenkins-demo-app'
+            }
+        }
+
     }
 }
