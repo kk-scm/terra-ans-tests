@@ -19,5 +19,11 @@ pipeline {
                 echo 'Running tests...'
             }
         }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t jenkins-demo-app .'
+            }
+        }
     }
 }
