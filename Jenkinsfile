@@ -20,6 +20,16 @@ pipeline {
             }
         }
 
+        stage('ECR Login') {
+            steps {
+                sh '''
+                    ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+                    aws ecr get-login-password --region us-east-2 |
+                    docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.us-east-2.amazonaws.com
+                '''
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 sh 'docker build -t jenkins-demo-app .'
