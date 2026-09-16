@@ -43,19 +43,19 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t $ECR_URL:latest .'
+                sh 'docker build -t $ECR_URL:$BUILD_NUMBER .'
             }
         }
 
         stage('Docker Push') { 
             steps { 
-                sh 'docker push $ECR_URL:latest' 
+                sh 'docker push $ECR_URL:$BUILD_NUMBER' 
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                sh 'docker run --rm $ECR_URL:latest'
+                sh 'docker run --rm $ECR_URL:$BUILD_NUMBER'
             }
         }
 
