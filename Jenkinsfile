@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment { 
+        AWS_REGION = 'us-east-2' 
+        ECR_REPOSITORY = 'jenkins-demo-repo' 
+    }
+    
     stages {
         stage('Checkout') {
             steps {
@@ -20,25 +25,37 @@ pipeline {
             }
         }
 
-        stage('ECR Login') {
+        stage('ECR Setup') {
             steps {
-                sh '''
-                    ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-                    aws ecr get-login-password --region us-east-2 |
-                    docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.us-east-2.amazonaws.com
-                '''
+                script { 
+                    def accountId = sh( 
+                        script: 'aws sts get-caller-identity --query Account --output text', 
+                        returnStdout: true 
+                    ).trim() 
+                    env.ECR_URL = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}" 
+
+                    sh ''' 
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_URL 
+                    '''
+                }
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t jenkins-demo-app .'
+                sh 'docker build -t $ECR_URL:latest .'
+            }
+        }
+
+        stage('Docker Push') { 
+            steps { 
+                sh 'docker push $ECR_URL:latest' 
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                sh 'docker run --rm jenkins-demo-app'
+                sh 'docker run --rm $ECR_URL:latest'
             }
         }
 
