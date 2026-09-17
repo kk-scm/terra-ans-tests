@@ -33,7 +33,10 @@ pipeline {
                         returnStdout: true 
                     ).trim() 
                     env.ECR_URL = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}" 
-
+                    env.IMAGE_TAG = sh(
+                                        script: 'git rev-parse --short HEAD',
+                                        returnStdout: true
+                                        ).trim()
                     sh ''' 
                         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_URL 
                     '''
@@ -50,16 +53,15 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t $ECR_URL:$GIT_COMMIT .'
+                sh 'docker build -t $ECR_URL:$IMAGE_TAG .'
             }
         }
 
         stage('Docker Push') { 
             steps { 
-                sh 'docker push $ECR_URL:$GIT_COMMIT' 
+                sh 'docker push $ECR_URL:$IMAGE_TAG' 
             }
         }
-
-       
+   
     }
 }
