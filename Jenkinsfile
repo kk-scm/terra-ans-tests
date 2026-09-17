@@ -41,6 +41,13 @@ pipeline {
             }
         }
 
+        stage('Docker Test') {
+            steps {
+                sh 'id'
+                sh 'docker ps'
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 sh 'docker build -t $ECR_URL:$BUILD_NUMBER .'
