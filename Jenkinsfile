@@ -60,11 +60,6 @@ pipeline {
             }
         }
 
-        stage('Run Docker Container') {
-            steps {
-                sh 'docker run --rm $ECR_URL:$BUILD_NUMBER'
-            }
-        }
-
+       
     }
 }
