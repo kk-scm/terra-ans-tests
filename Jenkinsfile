@@ -77,6 +77,7 @@ pipeline {
                         ''',
                         returnStdout: true
                         ).trim()
+                echo "Ansible IP: ${ansibleIp}"
                 sh '''
                     ssh -i /var/lib/jenkins/.ssh/jenkins-ansible-key \
                     -o StrictHostKeyChecking=no \
