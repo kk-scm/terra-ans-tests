@@ -63,14 +63,16 @@ pipeline {
             }
         }
 
-       /* stage('Deploy') {
+        stage('Deploy') {
             steps {
                 sh '''
-                    ssh ec2-user@<ANSIBLE_IP> \
-                    "ansible-playbook -i ~/inventory/aws_ec2.yml ~/project/deploy-app.yml -e 'image_tag=$IMAGE_TAG'"
+                    ssh -i /home/ec2-user/.ssh/jenkins-ansible-key \
+                    -o StrictHostKeyChecking=no \
+                    ec2-user@3.145.46.44 \
+                    "cd ~/terra-ans-tests/ && ansible-playbook -i ~/inventory/aws_ec2.yml deploy.yml -e 'image_tag=$IMAGE_TAG'"
                 '''
             }
-        }*/
+        }
    
     }
 }
