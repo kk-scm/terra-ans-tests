@@ -79,8 +79,7 @@ pipeline {
                         ).trim()
                 echo "Discovered Ansible IP: ${env.ANSIBLE_IP}"
                 }
-                echo "SSH target: $ANSIBLE_IP"
-
+                
                 sh '''
                     ssh -i /var/lib/jenkins/.ssh/jenkins-ansible-key \
                     -o StrictHostKeyChecking=no \

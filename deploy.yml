@@ -34,3 +34,15 @@
           -p 5000:5000 \
           {{ aws_account_id.stdout }}.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ ecr_repository }}:{{ image_tag }}
       become_user: ec2-user
+
+    - name: Wait for application to start
+      wait_for:
+        host: 127.0.0.1
+        port: 5000
+        delay: 3
+        timeout: 30
+
+    - name: Check application health
+      uri:
+        url: http://127.0.0.1:5000
+        status_code: 200
