@@ -65,10 +65,22 @@ pipeline {
 
         stage('Deploy') {
             steps {
+                script {
+                    def ansibleIp = sh(
+                        script: '''
+                            aws ec2 describe-instances \
+                            --filters "Name=tag:Name,Values=ansible-server" \
+                            "Name=instance-state-name,Values=running" \
+                            --query "Reservations[0].Instances[0].PublicIpAddress" \
+                            --output text \
+                            --region us-east-2
+                        ''',
+                        returnStdout: true
+                        ).trim()
                 sh '''
                     ssh -i /var/lib/jenkins/.ssh/jenkins-ansible-key \
                     -o StrictHostKeyChecking=no \
-                    ec2-user@3.145.46.44 \
+                    ec2-user@${ansibleIp} \
                     "cd ~/terra-ans-tests/ && ansible-playbook -i ~/inventory/aws_ec2.yml deploy.yml -e 'image_tag=$IMAGE_TAG'"
                 '''
             }
