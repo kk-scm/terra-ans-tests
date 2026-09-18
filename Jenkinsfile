@@ -66,7 +66,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    def ansibleIp = sh(
+                    env.ANSIBLE_IP = sh(
                         script: '''
                             aws ec2 describe-instances \
                             --filters "Name=tag:Name,Values=ansible-server" \
@@ -77,15 +77,18 @@ pipeline {
                         ''',
                         returnStdout: true
                         ).trim()
-                echo "Ansible IP: ${ansibleIp}"
+                echo "Discovered Ansible IP: ${env.ANSIBLE_IP}"
+                }
+                echo "SSH target: $ANSIBLE_IP"
+
                 sh '''
                     ssh -i /var/lib/jenkins/.ssh/jenkins-ansible-key \
                     -o StrictHostKeyChecking=no \
-                    ec2-user@${ansibleIp} \
+                    ec2-user@$ANSIBLE_IP \
                     "cd ~/terra-ans-tests/ && ansible-playbook -i ~/inventory/aws_ec2.yml deploy.yml -e 'image_tag=$IMAGE_TAG'"
                 '''
-                }
             }
+            
         }
    
     }
