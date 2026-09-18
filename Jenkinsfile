@@ -79,7 +79,9 @@ pipeline {
                         ).trim()
                 echo "Discovered Ansible IP: ${env.ANSIBLE_IP}"
                 }
-                
+                if (!env.ANSIBLE_IP || env.ANSIBLE_IP == 'None') {
+                    error "Ansible EC2 public IP was not found"
+                }
                 sh '''
                     ssh -i /var/lib/jenkins/.ssh/jenkins-ansible-key \
                     -o StrictHostKeyChecking=no \
