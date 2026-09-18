@@ -66,7 +66,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    ssh -i /home/ec2-user/.ssh/jenkins-ansible-key \
+                    ssh -i /var/lib/jenkins/.ssh/jenkins-ansible-key \
                     -o StrictHostKeyChecking=no \
                     ec2-user@3.145.46.44 \
                     "cd ~/terra-ans-tests/ && ansible-playbook -i ~/inventory/aws_ec2.yml deploy.yml -e 'image_tag=$IMAGE_TAG'"
