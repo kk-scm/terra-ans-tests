@@ -83,6 +83,7 @@ pipeline {
                     ec2-user@${ansibleIp} \
                     "cd ~/terra-ans-tests/ && ansible-playbook -i ~/inventory/aws_ec2.yml deploy.yml -e 'image_tag=$IMAGE_TAG'"
                 '''
+                }
             }
         }
    
