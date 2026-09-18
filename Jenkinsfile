@@ -62,6 +62,15 @@ pipeline {
                 sh 'docker push $ECR_URL:$IMAGE_TAG' 
             }
         }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    ssh ec2-user@<ANSIBLE_IP> \
+                    "ansible-playbook -i ~/inventory/aws_ec2.yml ~/project/deploy-app.yml -e 'image_tag=$IMAGE_TAG'"
+                '''
+            }
+        }
    
     }
 }

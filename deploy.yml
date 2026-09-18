@@ -1,0 +1,36 @@
+---
+- name: Deploy application
+  hosts: all
+  become: true
+
+  vars:
+    aws_region: us-east-2
+    ecr_repository: jenkins-demo-repo
+
+  tasks:
+
+    - name: Get AWS account ID
+      shell: |
+        aws sts get-caller-identity --query Account --output text
+      register: aws_account_id
+      changed_when: false
+
+    - name: Login to Amazon ECR
+      shell: |
+        aws ecr get-login-password --region {{ aws_region }} |
+        docker login --username AWS --password-stdin {{ aws_account_id.stdout }}.dkr.ecr.{{ aws_region }}.amazonaws.com
+      become_user: ec2-user
+
+    - name: Pull application image
+      shell: |
+        docker pull {{ aws_account_id.stdout }}.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ ecr_repository }}:{{ image_tag }}
+      become_user: ec2-user
+
+    - name: Run application container
+      shell: |
+        docker rm -f jenkins-demo-app 2>/dev/null || true
+        docker run -d \
+          --name jenkins-demo-app \
+          -p 5000:5000 \
+          {{ aws_account_id.stdout }}.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ ecr_repository }}:{{ image_tag }}
+      become_user: ec2-user
